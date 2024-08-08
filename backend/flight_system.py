@@ -6,7 +6,7 @@ from collections import defaultdict, namedtuple
 import heapq
 
 Flight = namedtuple('Flight', 'OACode DACode passengers seats distance Dcity OCity flightnumer seats_reserved')
-Booking = namedtuple('Booking', 'booked_under booking_id num_seats distance cost flightsTaken password bookingTimeAndDate')
+Booking = namedtuple('Booking', 'booked_under booking_id num_seats distance cost flightsTaken password bookingTimeAndDate probability_of_delay')
 
 class FlightSystem:
     def __init__(self):
@@ -63,12 +63,20 @@ class FlightSystem:
 
         except FileNotFoundError:
             print("File 'out.csv' not found!")
-
+    """
     def buildGraph(self):
         for flight in self.flight:
             originIndex = self.flightMap[flight.OCity]
             destinationIndex = self.flightMap[flight.Dcity]
             self.flightGraph[originIndex].append((flight.distance, destinationIndex, flight.flightnumer))
+            """
+
+    def buildGraph(self):
+        for flight in self.flight:
+            originIndex = self.flightMap[flight.OCity]
+            destinationIndex = self.flightMap[flight.Dcity]
+            probability = random.uniform(0, 1)  # Example: Random probability of delay
+            self.flightGraph[originIndex].append((flight.distance, destinationIndex, flight.flightnumer, probability))
 
     def calculateCost(self, distance):
         baseFare = 50
