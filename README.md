@@ -14,7 +14,7 @@ Flight Reservation System is a python application designed to provide informatio
 9. [Contact](#contact)
 
 
-#Introduction
+# Introduction
 This project, Flight Reservation System, aims to enhance the travel experience by offering users an integrated platform where they can compare flight prices, track flight statuses, view real-time delays, and make informed decisions regarding their travel plans. By leveraging probabilistic graphs, hash maps, and advanced algorithms like Dijkstra's Algorithm, this system not only improves accessibility but also ensures efficient route planning and flight tracking. The goal is to provide a solution that empowers travelers to manage their time better and minimize the common frustrations associated with airline travel, such as poor access to information, long booking times, and unexpected flight delays. 
 
  
