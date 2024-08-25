@@ -10,7 +10,7 @@ function CancelBooking() {
     try {
       const response = await axios.post('http://localhost:5000/cancel', {
         booking_id: parseInt(bookingId),
-        password: password,
+        password,
       });
       if (response.data.success) {
         setResult('Booking cancelled successfully!');

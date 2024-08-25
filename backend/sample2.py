@@ -1,12 +1,11 @@
-import requests
+import csv
+import os
 import random
 import time
 from collections import defaultdict, namedtuple
 import heapq
-from dotenv import load_dotenv
-import os
 
-
+# Define namedtuples for Flight and Booking
 Flight = namedtuple('Flight', 'OACode DACode passengers seats distance Dcity OCity flightnumer seats_reserved')
 Booking = namedtuple('Booking', 'booked_under booking_id num_seats distance cost flightsTaken password bookingTimeAndDate probability_of_delay')
 
@@ -30,71 +29,41 @@ class FlightSystem:
     def trimalpha(self, s):
         return ''.join(filter(str.isalpha, s))
 
-    def fetchFlightDataFromAPI(self):
-        load_dotenv()
-        api_key = os.getenv('AVIATION_EDGE_API_Key')
-        #api_key = "YOUR_API_KEY"  # Replace with your actual API key
-        url = f"https://aviation-edge.com/v2/public/flights?key={api_key}"
-        #url = f"https://aviation-edge.com/v2/public/airports?key={api_key}"
-
-        
-        
+    def read_record(self):
         try:
-            response = requests.get(url)
-            response.raise_for_status()  # Raises an HTTPError if the status code is 4xx, 5xx
-            
-            data = response.json()
-            
-            # Print the data to inspect its structure
-            print("API Response Data:", data)
-            
-            ind = 1  # Starting index for new cities
-            
-            # Assuming the data is a list of flight dictionaries
-            if isinstance(data, list):
-                for flight_data in data:
-                    if not isinstance(flight_data, dict):
-                        print("Unexpected data format:", flight_data)
-                        continue
+            with open("out.csv", "r") as fp:
+                reader = csv.reader(fp)
+                next(reader)  # Skip header if there is one
+                
+                ind = 1
+                for i, row in enumerate(reader):
+                    if len(row) != 7:
+                        continue  # Skip invalid rows
+                    oac, dac, pa, sea, dist, dc, oc = row
+                    oc = self.trimalpha(oc)
+                    dc = self.trimalpha(dc)
                     
-                    # Print flight_data to debug
-                    print("Processing flight data:", flight_data)
-                    
-                    try:
-                        oac = flight_data['departure']['iata']
-                        dac = flight_data['arrival']['iata']
-                        pa = 0  # Placeholder, as API response does not include passengers
-                        sea = 0  # Placeholder, as API response does not include seats
-                        dist = 0  # Placeholder, as API response does not include distance
-                        dc = flight_data['arrival']['airport']
-                        oc = flight_data['departure']['airport']
-                        flight_number = flight_data['flight']['iata']
-                        seats_reserved = 0  # Placeholder
-                        
-                        # Create Flight namedtuple
-                        flight = Flight(oac, dac, pa, sea, dist, dc, oc, flight_number, seats_reserved)
-                        self.flight.append(flight)
-                        
-                        # Update flightMap with city codes
-                        if oc not in self.flightMap:
-                            self.flightMap[oc] = ind
-                            ind += 1
-                        
-                        if dc not in self.flightMap:
-                            self.flightMap[dc] = ind
-                            ind += 1
+                    flight = Flight(oac, dac, int(pa), int(sea), int(dist), dc, oc, i, int(pa))
+                    self.flight.append(flight)
 
-                    except KeyError as e:
-                        print(f"Missing expected key: {e}")
-                        continue
+                    if not self.check_key(oc):
+                        self.flightMap[oc] = ind
+                        ind += 1
 
-                print("Flight data successfully fetched and processed.")
+                    if not self.check_key(dc):
+                        self.flightMap[dc] = ind
+                        ind += 1
 
-            else:
-                print("Unexpected API response format.")
+                    print(f"{i} Reading Data: ")
+                    print(f"Origin City Code: {oac} ")
+                    print(f"Destination City Code: {dac} ")
+                    print(f"Number of Passengers: {pa} ")
+                    print(f"Number of seats: {sea} ")
+                    print(f"Destination City: {dc} ")
+                    print(f"Origin City: {oc}\n")
 
-        except requests.RequestException as e:
-            print(f"An error occurred: {e}")
+        except FileNotFoundError:
+            print("File 'out.csv' not found!")
 
     def buildGraph(self):
         for flight in self.flight:
@@ -114,9 +83,9 @@ class FlightSystem:
             return
         self.installed = True
         print("Installing Flight Data....")
-        self.fetchFlightDataFromAPI()
+        self.read_record()
+        print("Read Data Successfully!")
         self.buildGraph()
-        print("Flight Data Successfully Installed!")
 
     def Dijkstra(self, source, destination):
         pq = []
@@ -133,7 +102,7 @@ class FlightSystem:
                 continue
             vis[currv] = True
 
-            for nextw, nextv, nextfin, _ in self.flightGraph[currv]:
+            for nextw, nextv, nextfin, _ in self.flightGraph[currv]:  # Handle four values with _ for ignored value
                 if vis[nextv]:
                     continue
 
@@ -272,7 +241,7 @@ class FlightSystem:
 
 if __name__ == "__main__":
     fs = FlightSystem()
-    fs.install()  # This will fetch data from the API and build the graph
+    fs.install()
     while True:
         print("\nOptions:")
         print("1. Reserve Seats")

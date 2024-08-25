@@ -2,19 +2,23 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 function ReserveSeats() {
-  const [origin, setOrigin] = useState('');
-  const [destination, setDestination] = useState('');
+  const [originCity, setOriginCity] = useState('');
+  const [destinationCity, setDestinationCity] = useState('');
   const [numSeats, setNumSeats] = useState('');
   const [result, setResult] = useState('');
 
   const handleReserve = async () => {
     try {
       const response = await axios.post('http://localhost:5000/reserve', {
-        originCity: origin,
-        destinationCity: destination,
+        originCity,
+        destinationCity,
         numSeats: parseInt(numSeats),
       });
-      setResult(`Booking Successful! ID: ${response.data.booking_id}, Password: ${response.data.password}`);
+      if (response.data.success) {
+        setResult('Seats reserved successfully!');
+      } else {
+        setResult('Reservation failed.');
+      }
     } catch (error) {
       setResult('Error reserving seats.');
     }
@@ -25,12 +29,12 @@ function ReserveSeats() {
       <h2>Reserve Seats</h2>
       <label>
         Origin City:
-        <input type="text" value={origin} onChange={(e) => setOrigin(e.target.value)} />
+        <input type="text" value={originCity} onChange={(e) => setOriginCity(e.target.value)} />
       </label>
       <br />
       <label>
         Destination City:
-        <input type="text" value={destination} onChange={(e) => setDestination(e.target.value)} />
+        <input type="text" value={destinationCity} onChange={(e) => setDestinationCity(e.target.value)} />
       </label>
       <br />
       <label>
