@@ -15,7 +15,7 @@ class FlightSystem:
     # Function to fetch flight data from Aviation Edge API
     def fetchFlightDataFromAPI(self):
         api_key = "YOUR_API_KEY"  # Replace with your actual API key
-        url = f"https://aviation-edge.com/v2/public/flights?key={api_key}&arr_iata=JFK&dep_iata=LAX"
+        
         
         try:
             response = requests.get(url)

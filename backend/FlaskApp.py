@@ -1,15 +1,23 @@
 from flask import Flask, jsonify, request
-from FlightWithFlask import FlightSystem  # Import the FlightSystem class
-
+from flask_cors import CORS  # Import CORS
+from FLIGHT import FlightSystem  # Import the FlightSystem class
 
 app = Flask(__name__)
+CORS(app, resources={
+    r"/api/*" : {"origins" : "*"}
+})  # Enable CORS for all routes
 
 # Initialize the FlightSystem
 fs = FlightSystem()
 fs.install()
 
+@app.route('/test', methods=['GET'])
+def test():
+    return jsonify("test")
+
 @app.route('/reserve', methods=['POST'])
 def reserve():
+    print("testing reservr")
     data = request.json
     result = fs.reserveSeats(
         data.get('originCity'),
